@@ -86,4 +86,32 @@ public class TicketDAO {
         }
         return false;
     }
+    public int getNbTicket (String vehicleRegNumber){
+        int ticketCount = 0; //Initialisation du compteur de tickets
+        Connection Data = null; //Déclaration de l'objet Connection pour interagir avec la base de données
+
+        try {
+            Data = dataBaseConfig.getConnection(); //Connexion à la base de données
+            PreparedStatement ps = Data.prepareStatement("SELECT COUNT(*) FROM ticket WHERE VEHICLE_REG_NUMBER= ?"); //Préparation de la requête SQL pour compter les tickets d'un véhicule
+            ps.setString(1, vehicleRegNumber); //Remplacement du ? dans la requête par le numéro d'immatriculation
+            ResultSet rs = ps.executeQuery();  //Excécution  de la requête SQL et récupération du résultat
+
+            if (rs.next()) {
+                ticketCount = rs.getInt(1);
+            }
+            dataBaseConfig.closeResultSet(rs); //Fermeture du résultat après utilisation
+            dataBaseConfig.closePreparedStatement(ps); //Fermeture de PreparedStatement
+
+        } catch (Exception e) {
+            logger.error("Erreur de comptage du véhicule: " + vehicleRegNumber, e); //logge une erreur si une exception apparait pendant l'execution
+
+        } finally {
+            dataBaseConfig.closeConnection(Data); //Libére la connexion à la base de données, même s'il y a une erreur
+        }
+
+        return ticketCount; // Retourne le nombre de tickets comptés pour chaque véhicule
+
+
+
+    }
 }
